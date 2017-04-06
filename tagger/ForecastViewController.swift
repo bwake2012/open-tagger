@@ -23,19 +23,19 @@ class ForecastViewController: UIViewController, BeaconMonitorDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NSNotificationCenter.defaultCenter().addObserverForName("firstTabActive", object: nil, queue: nil) { (notif) in
+        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "firstTabActive"), object: nil, queue: nil) { (notif) in
             guard (self.monitor != nil) else { return }
             self.monitor!.stop()
         }
         
-        NSNotificationCenter.defaultCenter().addObserverForName("firstTabInactive", object: nil, queue: nil) { (notif) in
+        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "firstTabInactive"), object: nil, queue: nil) { (notif) in
             if let sender = notif.object as? Areas {
                 self.areas = sender
             }
         }
         
         self.beacons = Reel(elements: self.remoteBeacons.beacons, limit: 5, nullValue: nullBeacon())
-        if let m = BeaconMonitor(UUID: remoteBeacons.beacons.first!.uuid, authorisation: .Always){
+        if let m = BeaconMonitor(UUID: remoteBeacons.beacons.first!.uuid, authorisation: .always){
             monitor = m
             m.addDelegate(self)
             let e = m.statusErrors()
@@ -53,8 +53,8 @@ class ForecastViewController: UIViewController, BeaconMonitorDelegate {
         
     }
     
-    override func viewDidAppear(animated: Bool) {
-        NSNotificationCenter.defaultCenter().postNotificationName("secondTabActive", object: nil)
+    override func viewDidAppear(_ animated: Bool) {
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "secondTabActive"), object: nil)
         monitor?.start()
         super.viewWillAppear(animated)
     }
@@ -65,14 +65,14 @@ class ForecastViewController: UIViewController, BeaconMonitorDelegate {
     }
     
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: "firstTabActive", object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: "firstTabInactive", object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "firstTabActive"), object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "firstTabInactive"), object: nil)
     }
     
     
     // MARK: - BEACON MONITOR DELEGATE METHODS
     
-    func beaconMonitor(monitor: BeaconMonitor, didFindCLBeacons beacons: [CLBeacon]){
+    func beaconMonitor(_ monitor: BeaconMonitor, didFindCLBeacons beacons: [CLBeacon]){
         
         // Process raw RSSI data:
         // CLBeacons are "translated" into pure Swift Beacon objects
@@ -126,25 +126,25 @@ class ForecastViewController: UIViewController, BeaconMonitorDelegate {
         
     }
     
-    func beaconMonitor(monitor: BeaconMonitor, errorScanningBeacons error: BeaconMonitorError){
+    func beaconMonitor(_ monitor: BeaconMonitor, errorScanningBeacons error: BeaconMonitorError){
         // Unimplemented error handling
         // DEBUG PRINTS:
         print(error)
     }
     
-    func beaconMonitor(monitor: BeaconMonitor, didFindStatusErrors errors: [BeaconMonitorError]) {
+    func beaconMonitor(_ monitor: BeaconMonitor, didFindStatusErrors errors: [BeaconMonitorError]) {
         // Unimplemented error handling
         // DEBUG PRINTS:
         let _ = errors.map({print($0)})
     }
     
-    func beaconMonitor(monitor: BeaconMonitor, didFindBLEErrors errors: [BeaconMonitorError]) {
+    func beaconMonitor(_ monitor: BeaconMonitor, didFindBLEErrors errors: [BeaconMonitorError]) {
         // Unimplemented error handling
         // DEBUG PRINTS:
         let _ = errors.map({print($0)})
     }
     
-    func beaconMonitor(monitor: BeaconMonitor, didReceiveAuthorisation authorisation: BeaconMonitorAuthorisationType) {
+    func beaconMonitor(_ monitor: BeaconMonitor, didReceiveAuthorisation authorisation: BeaconMonitorAuthorisationType) {
         // DEBUG PRINTS:
         //print("Authorisation received")
         monitor.start()

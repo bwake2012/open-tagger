@@ -27,7 +27,7 @@ class EditAreaViewController: UIViewController, UITextFieldDelegate, UITextViewD
             name.delegate = self
             des.delegate = self
             
-            let tap = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
+            let tap = UITapGestureRecognizer(target: self, action: #selector(EditAreaViewController.dismissKeyboard))
             self.view.addGestureRecognizer(tap)
         }
     }
@@ -43,36 +43,36 @@ class EditAreaViewController: UIViewController, UITextFieldDelegate, UITextViewD
         self.view.endEditing(true)
     }
     
-    func textFieldDidEndEditing(textField: UITextField) {
+    func textFieldDidEndEditing(_ textField: UITextField) {
         area!.name = name.text!
         if let a = updateTable {a()}
     }
     
-    func textViewDidEndEditing(textView: UITextView) {
+    func textViewDidEndEditing(_ textView: UITextView) {
         area!.des = des.text
     }
     
     // MARK: - Image picker delegate methods and take a photo actions and methods
     
-    @IBAction func takePhoto(sender: UIBarButtonItem) {
+    @IBAction func takePhoto(_ sender: UIBarButtonItem) {
         let picker = UIImagePickerController()
         picker.delegate = self
         picker.allowsEditing = true
-        picker.sourceType = UIImagePickerControllerSourceType.Camera
-        self.presentViewController(picker, animated:true, completion:nil)
+        picker.sourceType = UIImagePickerControllerSourceType.camera
+        self.present(picker, animated:true, completion:nil)
     }
     
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject]) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let chosenImage = info[UIImagePickerControllerEditedImage] as? UIImage {
             self.picture.image = chosenImage
             area?.picture = chosenImage
             if let a = updateTable {a()}
         }
-        picker.dismissViewControllerAnimated(true, completion: nil)
+        picker.dismiss(animated: true, completion: nil)
     }
     
-    func imagePickerControllerDidCancel(picker: UIImagePickerController) {
-        picker.dismissViewControllerAnimated(true, completion: nil)
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true, completion: nil)
     }
     
 }

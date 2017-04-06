@@ -40,7 +40,7 @@ struct Reel<T: WithEquivalence> {
         }
     }
     
-    func pushMatchingElementsIn(e: [T]) -> Reel? {
+    func pushMatchingElementsIn(_ e: [T]) -> Reel? {
         if e.count > 0 {
             var count = self.items.first!.count + 1
             var itemsMutableCopy = self.items
@@ -49,7 +49,7 @@ struct Reel<T: WithEquivalence> {
                 count = self.limit
             }
             let _ = e.map({ (candidate) in
-                itemsMutableCopy.enumerate().map({ (index, _) in
+                itemsMutableCopy.enumerated().map({ (index, _) in
                     if let positivePushResult = itemsMutableCopy[index].enqueue(candidate) {
                         itemsMutableCopy[index] = positivePushResult
                     }
@@ -68,7 +68,7 @@ struct Reel<T: WithEquivalence> {
         }
     }
     
-    func getItemsInQueueMatchingElement(e: T) -> [T]? {
+    func getItemsInQueueMatchingElement(_ e: T) -> [T]? {
         if let returnValue = self.items.map({ $0.getArray(forHeader: e) }).first {
             return returnValue
         } else {
@@ -101,7 +101,7 @@ struct HomogeneousQueue<T: WithEquivalence> {
         }
     }
     
-    func enqueue(item: T) -> HomogeneousQueue? {
+    func enqueue(_ item: T) -> HomogeneousQueue? {
         if item <=> self.header {
             let newItems = self.items + [item]
             return HomogeneousQueue(elements: newItems, nullValue: self.nullValue, header: self.header)!
@@ -118,7 +118,7 @@ struct HomogeneousQueue<T: WithEquivalence> {
     func dequeue() -> HomogeneousQueue {
         if self.items.count > 1 {
             var newItems = self.items
-            newItems.removeAtIndex(0)
+            newItems.remove(at: 0)
             return HomogeneousQueue(elements: newItems, nullValue: self.nullValue, header: self.header)!
         } else {
             return self
@@ -149,33 +149,33 @@ class Weak<T: AnyObject> {
 
 struct Histogram {
     
-    private let elements: [Double]
-    private var cumulative: [Double]?
+    fileprivate let elements: [Double]
+    fileprivate var cumulative: [Double]?
     
     init?(data:[Double]) {
         guard data.count > 0 else { return nil }
         let tempElements = Histogram.normalize(Histogram.shift(data))
-        guard tempElements.reduce(false, combine: { $0 || $1 > 0.0 }) else { return nil }
+        guard tempElements.reduce(false, { $0 || $1 > 0.0 }) else { return nil }
         self.elements = tempElements
     }
     
     // MARK: Helper functitons
     
-    private static func normalize(histogram: [Double]) -> [Double] {
+    fileprivate static func normalize(_ histogram: [Double]) -> [Double] {
         let sum = histogram.reduce(0) { $0 + $1 }
         return histogram.map({ $0 / sum })
     }
     
-    private static func normalizeWithIndices(histogram: [(label:Int, value:Double)]) -> [(label:Int, value:Double)] {
+    fileprivate static func normalizeWithIndices(_ histogram: [(label:Int, value:Double)]) -> [(label:Int, value:Double)] {
         let sum = histogram.reduce(0) { $0 + $1.value }
         return histogram.map({ ($0.label, $0.value / sum) })
     }
     
-    private static func shift(histogram: [Double]) -> [Double] {
+    fileprivate static func shift(_ histogram: [Double]) -> [Double] {
         return histogram.map({ $0 + 95.0 })
     }
     
-    private func meanWithIndices(histogram: [(label:Int, value:Double)]) -> Double {
+    fileprivate func meanWithIndices(_ histogram: [(label:Int, value:Double)]) -> Double {
         return histogram.reduce(0.0) { $0 + $1.value * Double($1.label) }
     }
     
@@ -186,7 +186,7 @@ struct Histogram {
     }
     
     func argMax() -> Int {
-        return self.elements.indexOf(self.max())!
+        return self.elements.index(of: self.max())!
     }
     
     func argMin() -> Int {
@@ -194,12 +194,13 @@ struct Histogram {
     }
     
     func mean() -> Double {
-        return meanWithIndices(Array(self.elements.enumerate()))
+        return meanWithIndices(Array(self.elements.enumerated()) as! [(label: Int, value: Double)])
     }
     
     func variance() -> Double {
         let m = self.mean()
-        return self.elements.enumerate().reduce(0.0) { $0 + (Double($1.index) - m) * (Double($1.index) - m) * $1.element }
+
+        return self.elements.enumerated().reduce(0.0) { $0 + (Double($1.offset) - m) * (Double($1.offset) - m) * $1.element }
     }
     
     func stDev() -> Double {
@@ -233,9 +234,9 @@ struct Histogram {
         }
     }
     
-    mutating func percentile(percentile: Double) -> Double {
-        let high = self.cumulativeDistribution().enumerate().reduce((0, self.cumulativeDistribution().first!)) { if $1.element < percentile { return $1 } else { return $0 } }
-        let low = self.cumulativeDistribution().enumerate().reverse().reduce((0, self.cumulativeDistribution().first!)) { if $1.element > percentile { return $1 } else { return $0 } }
+    mutating func percentile(_ percentile: Double) -> Double {
+        let high = self.cumulativeDistribution().enumerated().reduce((0, self.cumulativeDistribution().first!)) { if $1.element < percentile { return $1 } else { return $0 } }
+        let low = self.cumulativeDistribution().enumerated().reversed().reduce((0, self.cumulativeDistribution().first!)) { if $1.element > percentile { return $1 } else { return $0 } }
         let p1 = self.elements[high.0]
         let p2 = self.elements[low.0]
         return (Double(high.0) * p1 + Double(low.0) * p2) / (p1 + p2)
@@ -251,14 +252,16 @@ struct Histogram {
 // MARK: PROTOCOLS
 
 protocol WithEquivalence {
-    func <=>(lhs: Self, rhs: Self) -> Bool
+    static func <=>(lhs: Self, rhs: Self) -> Bool
 }
 
 protocol AreasSecondaryStorage {
     var areas:Areas { get }
-    func updateAreas(notification:NSNotification)
+    func updateAreas(_ notification:Notification)
 }
 
 // MARK: OPERATORS
 
-infix operator <=> { associativity none precedence 130 }
+infix operator <=> : ComparisonPrecedence
+
+

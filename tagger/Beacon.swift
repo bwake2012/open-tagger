@@ -15,7 +15,7 @@ class Beacon: NSObject, WithEquivalence {
     let uuid:String
     let major:Int
     let minor:Int
-    let timestamp:NSDate = NSDate()
+    let timestamp:Date = Date()
     var rssi: Int
     var accuracy: Double
     var isNull: Bool {
@@ -24,8 +24,8 @@ class Beacon: NSObject, WithEquivalence {
         }
     }
     
-    init(uuid: NSUUID, major:Int, minor:Int) {
-        self.uuid = uuid.UUIDString
+    init(uuid: UUID, major:Int, minor:Int) {
+        self.uuid = uuid.uuidString
         self.major = major
         self.minor = minor
         self.rssi = 0
@@ -45,7 +45,7 @@ class Beacon: NSObject, WithEquivalence {
 
 class nullBeacon: Beacon {
     init() {
-        super.init(uuid: NSUUID(UUIDBytes:"00000000-0000-0000-0000-0000000000000"), major: 0, minor: 0)
+        super.init(uuid: NSUUID(uuidBytes:"00000000-0000-0000-0000-0000000000000") as UUID, major: 0, minor: 0)
     }
 }
 
@@ -56,11 +56,11 @@ func <=>(lhs: Beacon, rhs: Beacon) -> Bool{
 }
 
 func <=>(lhs: Beacon, rhs: CLBeacon) -> Bool{
-    return lhs.uuid == rhs.proximityUUID && lhs.minor == rhs.minor && lhs.major == rhs.major
+    return lhs.uuid == rhs.proximityUUID.uuidString && lhs.minor == Int( rhs.minor ) && lhs.major == Int( rhs.major )
 }
 
 func <=>(lhs: CLBeacon, rhs: Beacon) -> Bool{
-    return lhs.proximityUUID == rhs.uuid && lhs.minor == rhs.minor && lhs.major == rhs.major
+    return lhs.proximityUUID.uuidString == rhs.uuid && Int( lhs.minor ) == rhs.minor && Int( lhs.major ) == rhs.major
 }
 
 // MARK: - Convenience CLBeacon extension

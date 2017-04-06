@@ -15,21 +15,21 @@ class AreasTableViewController: UITableViewController, BeaconMonitorDelegate {
     var labels:[String] = []
     var remoteBeacons = beaconDB()
     var selectedCell = -1
-    var selectedCellIndexPath:NSIndexPath?
+    var selectedCellIndexPath:IndexPath?
     var beacons: Reel<Beacon>?
     var monitor:BeaconMonitor?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NSNotificationCenter.defaultCenter().addObserverForName("secondTabActive", object: nil, queue: nil) { (notif) in
+        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "secondTabActive"), object: nil, queue: nil) { (notif) in
             guard (self.monitor != nil) else {
                 return }
             self.monitor!.stop()
         }
         self.areas.load()
         self.beacons = Reel(elements: self.remoteBeacons.beacons, limit: 5, nullValue: nullBeacon())
-        if let m = BeaconMonitor(UUID: remoteBeacons.beacons.first!.uuid, authorisation: .Always){
+        if let m = BeaconMonitor(UUID: remoteBeacons.beacons.first!.uuid, authorisation: .always){
             m.addDelegate(self)
             monitor = m
             let e = m.statusErrors()
@@ -47,14 +47,14 @@ class AreasTableViewController: UITableViewController, BeaconMonitorDelegate {
         
     }
 
-    override func viewDidAppear(animated: Bool) {
-        NSNotificationCenter.defaultCenter().postNotificationName("firstTabActive", object: nil)
+    override func viewDidAppear(_ animated: Bool) {
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "firstTabActive"), object: nil)
         monitor?.start()
         super.viewWillAppear(animated)
     }
     
-    override func viewDidDisappear(animated: Bool) {
-        NSNotificationCenter.defaultCenter().postNotificationName("firstTabInactive", object: self.areas.makeCopy())
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "firstTabInactive"), object: self.areas.makeCopy())
         super.viewDidDisappear(animated)
         // DEBUG PRINTS:
         //print(areas.data())
@@ -66,26 +66,26 @@ class AreasTableViewController: UITableViewController, BeaconMonitorDelegate {
     }
     
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: "secondTabActive", object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: "secondTabActive"), object: nil)
     }
 
     // MARK: - Table view data source
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         // Return the number of sections.
         return 1
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // Return the number of rows in the section.
         return areas.list.count
     }
     
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         switch editingStyle {
-        case .Delete:
-            areas.list.removeAtIndex(indexPath.row)
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+        case .delete:
+            areas.list.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
         default:
             print("Invalid editing style")
         }
@@ -96,8 +96,8 @@ class AreasTableViewController: UITableViewController, BeaconMonitorDelegate {
         tableView.reloadData()
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("AreasCellView", forIndexPath: indexPath) as! AreasCellView
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "AreasCellView", for: indexPath) as! AreasCellView
         // Configure the cell...
         cell.icon.image = areas.list[indexPath.row].picture
         cell.desc.text = areas.list[indexPath.row].name
@@ -150,10 +150,12 @@ class AreasTableViewController: UITableViewController, BeaconMonitorDelegate {
 
     // MARK: - Navigation
 
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if segue.identifier == "editArea" {
-            let index = sender!.tag
-            let VC = segue.destinationViewController as! EditAreaViewController
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+
+        if segue.identifier == "editArea", let sender = sender as? UIView {
+
+            let index = sender.tag
+            let VC = segue.destination as! EditAreaViewController
             VC.area = areas.list[index]
             VC.updateTable = reloadTable
         }
@@ -161,7 +163,7 @@ class AreasTableViewController: UITableViewController, BeaconMonitorDelegate {
     
     // MARK: - BEACON MONITOR DELEGATE METHODS
     
-    func beaconMonitor(monitor: BeaconMonitor, didFindCLBeacons beacons: [CLBeacon]){
+    func beaconMonitor(_ monitor: BeaconMonitor, didFindCLBeacons beacons: [CLBeacon]){
         
         // Process ans store raw RSSI data:
         // CLBeacons are "translated" into pure Swift Beacon objects
@@ -191,25 +193,25 @@ class AreasTableViewController: UITableViewController, BeaconMonitorDelegate {
         
     }
     
-    func beaconMonitor(monitor: BeaconMonitor, errorScanningBeacons error: BeaconMonitorError){
+    func beaconMonitor(_ monitor: BeaconMonitor, errorScanningBeacons error: BeaconMonitorError){
         // Unimplemented error handling
         // DEBUG PRINTS:
         print(error)
     }
     
-    func beaconMonitor(monitor: BeaconMonitor, didFindStatusErrors errors: [BeaconMonitorError]) {
+    func beaconMonitor(_ monitor: BeaconMonitor, didFindStatusErrors errors: [BeaconMonitorError]) {
         // Unimplemented error handling
         // DEBUG PRINTS:
         let _ = errors.map({print($0)})
     }
     
-    func beaconMonitor(monitor: BeaconMonitor, didFindBLEErrors errors: [BeaconMonitorError]) {
+    func beaconMonitor(_ monitor: BeaconMonitor, didFindBLEErrors errors: [BeaconMonitorError]) {
         // Unimplemented error handling
         // DEBUG PRINTS:
         let _ = errors.map({print($0)})
     }
     
-    func beaconMonitor(monitor: BeaconMonitor, didReceiveAuthorisation authorisation: BeaconMonitorAuthorisationType) {
+    func beaconMonitor(_ monitor: BeaconMonitor, didReceiveAuthorisation authorisation: BeaconMonitorAuthorisationType) {
         // DEBUG PRINTS:
         //print("Authorisation received")
         monitor.start()
@@ -217,32 +219,32 @@ class AreasTableViewController: UITableViewController, BeaconMonitorDelegate {
     
     // MARK: - TABLE VIEW DELEGATE METHODS
     
-    override func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         // DEBUG PRINTS:
         //print("DESELECTED")
         selectedCell = -1
         selectedCellIndexPath = nil
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // DEBUG PRINTS:
         //print("DID SELECT")
         selectedCell = indexPath.row
         selectedCellIndexPath = indexPath
     }
     
-    override func tableView(tableView: UITableView, willDeselectRowAtIndexPath indexPath: NSIndexPath) -> NSIndexPath? {
+    override func tableView(_ tableView: UITableView, willDeselectRowAt indexPath: IndexPath) -> IndexPath? {
         // DEBUG PRINTS:
         //print("WILL DESELECT")
         return indexPath
     }
     
-    override func tableView(tableView: UITableView, willSelectRowAtIndexPath indexPath: NSIndexPath) -> NSIndexPath? {
-        let cell = tableView.cellForRowAtIndexPath(indexPath)
-        if cell?.selected == true {
-            tableView.delegate?.tableView!(tableView, willDeselectRowAtIndexPath: indexPath)
-            tableView.deselectRowAtIndexPath(indexPath, animated: false)
-            tableView.delegate?.tableView!(tableView, didDeselectRowAtIndexPath: indexPath)
+    override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        let cell = tableView.cellForRow(at: indexPath)
+        if cell?.isSelected == true {
+            _ = tableView.delegate?.tableView!(tableView, willDeselectRowAt: indexPath)
+            tableView.deselectRow(at: indexPath, animated: false)
+            tableView.delegate?.tableView!(tableView, didDeselectRowAt: indexPath)
             return nil
         }
         return indexPath

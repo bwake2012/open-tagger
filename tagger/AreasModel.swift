@@ -14,30 +14,30 @@ class Areas: NSObject, NSCoding {
     
     required convenience init?(coder decoder: NSCoder) {
         self.init()
-        if let l = decoder.decodeObjectForKey("list") as? [Area] {
+        if let l = decoder.decodeObject(forKey: "list") as? [Area] {
             self.list = l
         }
     }
     
-    func encodeWithCoder(coder: NSCoder) {
-        coder.encodeObject(self.list, forKey: "list")
+    func encode(with coder: NSCoder) {
+        coder.encode(self.list, forKey: "list")
     }
     
     func save() -> Bool {
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIApplicationDidEnterBackgroundNotification, object: nil)
-        let docDirs = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
+        let docDirs = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         let docDir = docDirs.first! 
-        let path = (docDir as NSString).stringByAppendingPathComponent("archive")
+        let path = (docDir as NSString).appendingPathComponent("archive")
         let success = NSKeyedArchiver.archiveRootObject(list, toFile: path)
         return success
     }
     
     func load() {
-        let docDirs = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+        let docDirs = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         let docDir = docDirs.first! 
-        let path = (docDir as NSString).stringByAppendingPathComponent("archive")
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "save", name: UIApplicationDidEnterBackgroundNotification, object: nil)
-        if let l = NSKeyedUnarchiver.unarchiveObjectWithFile(path) as? [Area] {
+        let path = (docDir as NSString).appendingPathComponent("archive")
+        NotificationCenter.default.addObserver(self, selector: #selector(Areas.save), name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
+        if let l = NSKeyedUnarchiver.unarchiveObject(withFile: path) as? [Area] {
             list = l
         }
     }
@@ -56,7 +56,7 @@ class Areas: NSObject, NSCoding {
         return copy
     }
     
-    func safeSwapPositions(firstAreaPosition: Int, secondAreaPosition: Int) {
+    func safeSwapPositions(_ firstAreaPosition: Int, secondAreaPosition: Int) {
         if firstAreaPosition > 0 &&
             secondAreaPosition > 0 &&
             firstAreaPosition < self.list.count &&
@@ -67,11 +67,11 @@ class Areas: NSObject, NSCoding {
         }
     }
     
-    func removeArea(id:Int) {
+    func removeArea(_ id:Int) {
         list = list.filter {$0.id != id}
     }
     
-    func area(id: Int) -> Area? {
+    func area(_ id: Int) -> Area? {
         return list.filter {$0.id == id}.first
     }
     
@@ -81,7 +81,7 @@ class Areas: NSObject, NSCoding {
             (acc, new) in
             var out = (acc.0,acc.1)
             out.0 = out.0 + new.data
-            out.1 = out.1 + Array(count: new.data.count, repeatedValue: new.id)
+            out.1 = out.1 + Array(repeating: new.id, count: new.data.count)
             return out
         }
         return output
