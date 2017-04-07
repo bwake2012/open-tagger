@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		52092DEB1B666A00001CB3F4 /* EditAreaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52092DEA1B666A00001CB3F4 /* EditAreaViewController.swift */; };
 		5263C5CA1B68E84800C48BF0 /* BeaconDB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5263C5C91B68E84800C48BF0 /* BeaconDB.swift */; };
-		5268F3681B77BAAB00751C76 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5268F3671B77BAAB00751C76 /* opencv2.framework */; };
 		526A03191B8793C5004CC8BB /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526A03181B8793C5004CC8BB /* Utility.swift */; };
 		526CEBC41B67A3FA000764FB /* BeaconMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526CEBC31B67A3FA000764FB /* BeaconMonitor.swift */; };
 		526CEBC61B67BBA9000764FB /* Beacon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 526CEBC51B67BBA9000764FB /* Beacon.swift */; };
@@ -39,7 +38,6 @@
 /* Begin PBXFileReference section */
 		52092DEA1B666A00001CB3F4 /* EditAreaViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditAreaViewController.swift; sourceTree = "<group>"; };
 		5263C5C91B68E84800C48BF0 /* BeaconDB.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconDB.swift; sourceTree = "<group>"; };
-		5268F3671B77BAAB00751C76 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../../opencv/platforms/ios/ios/opencv2.framework; sourceTree = "<group>"; };
 		5268F3691B78EDAB00751C76 /* tagger-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "tagger-Bridging-Header.h"; sourceTree = "<group>"; };
 		526A03181B8793C5004CC8BB /* Utility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
 		526CEBC31B67A3FA000764FB /* BeaconMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BeaconMonitor.swift; sourceTree = "<group>"; };
@@ -66,7 +64,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5268F3681B77BAAB00751C76 /* opencv2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,7 +112,6 @@
 		52E25BCF1B638EA100A281D2 = {
 			isa = PBXGroup;
 			children = (
-				5268F3671B77BAAB00751C76 /* opencv2.framework */,
 				52E25BDA1B638EA200A281D2 /* tagger */,
 				52E25BF21B638EA200A281D2 /* taggerTests */,
 				52E25BD91B638EA200A281D2 /* Products */,
@@ -428,7 +424,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/tagger"
+					"$(PROJECT_DIR)/tagger",
 				);
 				INFOPLIST_FILE = tagger/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
