@@ -31,7 +31,7 @@ This app will allow you to use any Bluetooth beacon or iBeacon of your chouce an
 - Museums and galleries
 - Shopping centers, malls and large shops
 - Public spaces (schools, universities, stations, airports)
-- Turist attractions
+- Tourist attractions
 - Facilities
 - ...
 
